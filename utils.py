@@ -1,6 +1,7 @@
 import configparser
 import datetime
 import decimal
+import random
 
 import pymysql
 from flask import jsonify
@@ -28,7 +29,8 @@ def init():
                     CREATE TABLE IF NOT EXISTS USER(
                     user_id INT NOT NULL AUTO_INCREMENT,
                     username VARCHAR(20) NOT NULL unique,
-                    password VARCHAR(20) NOT NULL,
+                    longitude DECIMAL(10,6) NOT NULL,
+                    latitude DECIMAL(10,6) NOT NULL,
                     creation_date DATE NOT NULL,
                     PRIMARY KEY ( user_id )
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8
@@ -38,12 +40,29 @@ def init():
                     grade_id INT NOT NULL AUTO_INCREMENT,
                     username VARCHAR(20) NOT NULL,
                     grade INT NOT NULL,
-                    longitude DECIMAL(10,6) NOT NULL,
-                    latitude DECIMAL(10,6) NOT NULL,
                     creation_date DATE NOT NULL,
                     PRIMARY KEY ( grade_id )
                     )ENGINE=InnoDB DEFAULT CHARSET=utf8
                 """)
+
+            # for test
+            # for i in range(10):
+            #     username = "user" + str(i+1)
+            #     longitude = random.randrange(-100, 100)
+            #     latitude = random.randrange(-100, 100)
+            #     cursor.execute("""
+            #                     INSERT INTO USER (username, longitude, latitude, creation_date)
+            #                     VALUES ('{}', '{}', '{}', CURDATE())
+            #                 """.format(username, longitude, latitude))
+            # for i in range(20):
+            #     username = "user" + str(random.randint(1, 10))
+            #     grade = random.randrange(0, 100)
+            #     cursor.execute("""
+            #                     INSERT INTO RECORD (username, grade, creation_date)
+            #                     VALUES ('{}', '{}', CURDATE())
+            #                 """.format(username, grade))
+            # connection.commit()
+
     finally:
         connection.close()
 

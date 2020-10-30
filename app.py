@@ -1,6 +1,5 @@
 from flask import Flask, request
 from pymysql import IntegrityError
-from werkzeug.exceptions import BadRequestKeyError
 
 from utils import *
 
@@ -9,24 +8,37 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def index():
-    return "mobile backend"
+    return "mobile backend", "400"
 
 
 @app.route("/user/add", methods=["POST"])
 def add_user():
     connection = pymysql.connect(**mysql)
     try:
+        if request.form and isinstance(request.form, dict):
+            username = request.form["username"]
+            longitude = request.form["longitude"]
+            latitude = request.form["latitude"]
+        elif request.json and isinstance(request.json, dict):
+            username = request.json["username"]
+            longitude = request.json["longitude"]
+            latitude = request.json["latitude"]
+        else:
+            return "Empty request", "400"
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO USER (username, password, creation_date)
-                VALUES ('{}', '{}', CURDATE())
-            """.format(request.form["username"], request.form["password"]))
+                INSERT INTO USER (username, longitude, latitude, creation_date)
+                VALUES ('{}', '{}', '{}', CURDATE())
+            """.format(username, longitude, latitude))
         connection.commit()
-        return "Success", "200"
+        return "Success"
+    except KeyError:
+        return "Username, longitude and latitude required", "400"
     except IntegrityError:
         return "Duplicate username", "400"
-    except BadRequestKeyError:
-        return "Username and password required", "400"
+    except Exception as e:
+        print(e)
+        return "Unknown error", "500"
     finally:
         connection.close()
 
@@ -35,16 +47,26 @@ def add_user():
 def add_record():
     connection = pymysql.connect(**mysql)
     try:
+        if request.form and isinstance(request.form, dict):
+            username = request.form["username"]
+            grade = request.form["grade"]
+        elif request.json and isinstance(request.json, dict):
+            username = request.json["username"]
+            grade = request.json["grade"]
+        else:
+            return "Empty request", "400"
         with connection.cursor() as cursor:
             cursor.execute("""
-                INSERT INTO RECORD (username, grade, longitude, latitude, creation_date)
-                VALUES ('{}', '{}', '{}', '{}', CURDATE())
-            """.format(request.form["username"], request.form["grade"], request.form["longitude"],
-                       request.form["latitude"]))
+                INSERT INTO RECORD (username, grade, creation_date)
+                VALUES ('{}', '{}', CURDATE())
+            """.format(username, grade))
         connection.commit()
-        return "Success", "200"
-    except BadRequestKeyError:
-        return "Username, grade and position required", "400"
+        return "Success"
+    except KeyError:
+        return "Username and grade required", "400"
+    except Exception as e:
+        print(e)
+        return "Unknown error", "500"
     finally:
         connection.close()
 
@@ -54,9 +76,12 @@ def query_user():
     connection = pymysql.connect(**mysql)
     try:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM USER")
+            cursor.execute("SELECT username, longitude, latitude, creation_date FROM USER")
             result = cursor.fetchall()
         return to_json(result)
+    except Exception as e:
+        print(e)
+        return "Unknown error", "500"
     finally:
         connection.close()
 
@@ -66,26 +91,14 @@ def query_record():
     connection = pymysql.connect(**mysql)
     try:
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM RECORD")
+            cursor.execute("""SELECT username, grade, creation_date FROM RECORD
+                ORDER BY grade DESC
+                LIMIT 10""")
             result = cursor.fetchall()
         return to_json(result)
-    finally:
-        connection.close()
-
-
-@app.route("/user/login", methods=["POST"])
-def login_user():
-    connection = pymysql.connect(**mysql)
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT * FROM USER WHERE username = '{}' AND password = '{}'
-            """.format(request.form["username"], request.form["password"]))
-            result = cursor.fetchall()
-        if result:
-            return "Success", "200"
-        else:
-            return "Incorrect username or password", "400"
+    except Exception as e:
+        print(e)
+        return "Unknown error", "500"
     finally:
         connection.close()
 

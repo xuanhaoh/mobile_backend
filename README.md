@@ -14,8 +14,7 @@ sudo sh mobile.sh
 ## HTTP API
 | URL | method | parameter | return |
 | :----: | :----: | :----: | :----: |
-| /user/add | POST | username, password | "Success", "200" <br> "Duplicate username", "400" <br> "Username and password required", "400" |
-| /user/query | GET | | [{user_id, username, password, creation_date}], "200" |
-| /user/login | POST | username, password | "Success", "200" <br> "Incorrect username or password", "400"|
-| /record/add | POST | username, grade, longitude, latitude | "Success", "200" <br> "Username, grade and position required", "400"|
-| /record/query | GET | | [{grade_id, username, longitude, latitude, creation_date}], "200" |
+| /user/add | POST | username, longitude, latitude | "Success", "200" <br> "Duplicate username", "400" <br> "Username, longitude and latitude required", "400" |
+| /user/query | GET | | [{username, longitude, latitude, creation_date}], "200" |
+| /record/add | POST | username, grade, longitude, latitude | "Success", "200" <br> "Username and grade required", "400"|
+| /record/query | GET | | [{username, grade, creation_date}], "200" |
