@@ -14,7 +14,10 @@ sudo sh mobile.sh
 ## HTTP API
 | URL | method | parameter | return |
 | :----: | :----: | :----: | :----: |
-| /user/add | POST | username, longitude, latitude | "Success", "200" <br> "Duplicate username", "400" <br> "Username, longitude and latitude required", "400" |
-| /user/query | GET | | [{username, longitude, latitude, creation_date}], "200" |
-| /record/add | POST | username, grade, longitude, latitude | "Success", "200" <br> "Username and grade required", "400"|
-| /record/query | GET | | [{username, grade, creation_date}], "200" |
+| /init | GET | | Message |
+| /add/random_data | GET | | Message |
+| /add/user | POST | username, longitude, latitude | Message |
+| /add/record | POST | username, grade | Message |
+| /update/user | POST | username, longitude, latitude | Message |
+| /query/nearby_record | POST | longitude, latitude, distance | [{username, longitude, latitude, grade}] |
+| /query/leaderboard | GET | | [{username, grade, creation_date}] |
